@@ -1,0 +1,29 @@
+# Virtual Environment
+venv/
+.venv/
+
+# Database
+*.db
+
+# Environment
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Test
+.pytest_cache/
+.coverage
+htmlcov/
