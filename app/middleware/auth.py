@@ -1,8 +1,4 @@
-"""
-Authentication middleware — JWT verification and role-based access dependencies.
-"""
-
-from fastapi import Depends, Request
+from fastapi import Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
 
@@ -11,7 +7,6 @@ from app.models.user import User, UserRole, ROLE_HIERARCHY
 from app.utils.security import decode_access_token
 from app.utils.exceptions import UnauthorizedException, ForbiddenException
 
-# ── Bearer token extractor ───────────────────────────────
 security_scheme = HTTPBearer(auto_error=False)
 
 
@@ -19,10 +14,7 @@ def get_current_user(
     credentials: HTTPAuthorizationCredentials | None = Depends(security_scheme),
     db: Session = Depends(get_db),
 ) -> User:
-    """
-    FastAPI dependency: extract and validate the JWT from the
-    Authorization header, then return the corresponding User object.
-    """
+    """Extract + validate JWT, return the User."""
     if credentials is None:
         raise UnauthorizedException("Authentication required")
 
@@ -43,14 +35,8 @@ def get_current_user(
     return user
 
 
-# ── Role-based dependency factories ─────────────────────
 def require_role(minimum_role: UserRole):
-    """
-    Returns a FastAPI dependency that enforces a minimum role level.
-
-    Usage:
-        @router.get("/admin-only", dependencies=[Depends(require_role(UserRole.ADMIN))])
-    """
+    """Returns a dependency that enforces a minimum role level."""
 
     def role_checker(current_user: User = Depends(get_current_user)) -> User:
         if not current_user.has_role(minimum_role):
@@ -63,7 +49,6 @@ def require_role(minimum_role: UserRole):
     return role_checker
 
 
-# Convenience dependencies
 require_viewer = require_role(UserRole.VIEWER)
 require_analyst = require_role(UserRole.ANALYST)
 require_admin = require_role(UserRole.ADMIN)

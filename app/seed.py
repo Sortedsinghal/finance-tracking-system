@@ -1,10 +1,3 @@
-"""
-Database seeder — populates the database with demo users and transactions.
-
-Usage:
-    python -m app.seed
-"""
-
 import random
 from datetime import date, timedelta
 
@@ -15,22 +8,17 @@ from app.utils.security import hash_password
 
 
 def seed_database():
-    """Create tables and insert demo data."""
-
-    # Create all tables
     Base.metadata.create_all(bind=engine)
 
     db = SessionLocal()
 
     try:
-        # Skip if data already exists
         if db.query(User).count() > 0:
-            print("⚠  Database already contains data. Skipping seed.")
+            print("Database already contains data. Skipping seed.")
             return
 
-        print("🌱 Seeding database...")
+        print("Seeding database...")
 
-        # ── Users ────────────────────────────────────────
         users = [
             User(
                 username="admin",
@@ -59,16 +47,15 @@ def seed_database():
             db.add(user)
         db.flush()
 
-        print(f"   ✓ Created {len(users)} users")
+        print(f"Created {len(users)} users")
 
-        # ── Transactions ─────────────────────────────────
         income_entries = [
             ("Salary", 5000.00, "Monthly salary"),
             ("Salary", 5000.00, "Monthly salary"),
             ("Salary", 5000.00, "Monthly salary"),
             ("Salary", 5000.00, "Monthly salary"),
             ("Salary", 5000.00, "Monthly salary"),
-            ("Salary", 5200.00, "Monthly salary — with raise"),
+            ("Salary", 5200.00, "Monthly salary with raise"),
             ("Freelance", 1200.00, "Website redesign project"),
             ("Freelance", 800.00, "Logo design for startup"),
             ("Freelance", 1500.00, "Mobile app consulting"),
@@ -105,12 +92,12 @@ def seed_database():
             ("Transport", 45.00, "Uber rides"),
             ("Transport", 62.50, "Gas for car"),
             ("Healthcare", 250.00, "Doctor visit and medication"),
-            ("Healthcare", 85.00, "Pharmacy — prescriptions"),
+            ("Healthcare", 85.00, "Pharmacy prescriptions"),
             ("Entertainment", 15.99, "Netflix subscription"),
             ("Entertainment", 12.99, "Spotify subscription"),
             ("Entertainment", 55.00, "Movie tickets and dinner"),
             ("Entertainment", 120.00, "Concert tickets"),
-            ("Education", 299.00, "Online course — Python advanced"),
+            ("Education", 299.00, "Online course Python advanced"),
             ("Education", 49.99, "Technical book purchase"),
             ("Shopping", 189.99, "New running shoes"),
             ("Shopping", 79.99, "Clothing purchase"),
@@ -123,14 +110,12 @@ def seed_database():
             ("Subscriptions", 14.99, "News subscription"),
         ]
 
-        # Spread transactions over 6 months
         today = date.today()
         start_date = today - timedelta(days=180)
 
         admin_user = users[0]
         transaction_objects = []
 
-        # Create income transactions spread across months
         for i, (category, amount, desc) in enumerate(income_entries):
             days_offset = int((i / len(income_entries)) * 180)
             txn_date = start_date + timedelta(days=days_offset)
@@ -146,7 +131,6 @@ def seed_database():
                 )
             )
 
-        # Create expense transactions spread across months
         for i, (category, amount, desc) in enumerate(expense_entries):
             days_offset = int((i / len(expense_entries)) * 180)
             txn_date = start_date + timedelta(days=days_offset)
@@ -166,22 +150,16 @@ def seed_database():
             db.add(txn)
 
         db.commit()
-        print(f"   ✓ Created {len(transaction_objects)} transactions")
-        print()
-        print("🎉 Seeding complete!")
-        print()
-        print("   Demo credentials:")
-        print("   ┌──────────┬─────────────┬─────────┐")
-        print("   │ Username │ Password    │ Role    │")
-        print("   ├──────────┼─────────────┼─────────┤")
-        print("   │ admin    │ admin123    │ Admin   │")
-        print("   │ analyst  │ analyst123  │ Analyst │")
-        print("   │ viewer   │ viewer123   │ Viewer  │")
-        print("   └──────────┴─────────────┴─────────┘")
+        print(f"Created {len(transaction_objects)} transactions\n")
+        print("Seeding complete!\n")
+        print("Demo credentials:")
+        print('username="admin" password="admin123"')
+        print('username="analyst" password="analyst123"')
+        print('username="viewer" password="viewer123"')
 
     except Exception as e:
         db.rollback()
-        print(f"❌ Seeding failed: {e}")
+        print(f"Seeding failed: {e}")
         raise
     finally:
         db.close()

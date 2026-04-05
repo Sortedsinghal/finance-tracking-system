@@ -1,7 +1,3 @@
-"""
-Authentication service — registration, login, and token management.
-"""
-
 from sqlalchemy.orm import Session
 
 from app.models.user import User, UserRole
@@ -15,17 +11,10 @@ from app.utils.exceptions import (
 
 
 def register_user(db: Session, data: UserCreate) -> User:
-    """
-    Register a new user account.
-
-    Raises:
-        ConflictException: If username or email already exists.
-    """
-    # Check for existing username
+    # Check for duplicate username
     if db.query(User).filter(User.username == data.username).first():
         raise ConflictException(f"Username '{data.username}' is already taken")
 
-    # Check for existing email
     if db.query(User).filter(User.email == data.email).first():
         raise ConflictException(f"Email '{data.email}' is already registered")
 
@@ -43,12 +32,6 @@ def register_user(db: Session, data: UserCreate) -> User:
 
 
 def authenticate_user(db: Session, data: LoginRequest) -> TokenResponse:
-    """
-    Authenticate a user and return a JWT token.
-
-    Raises:
-        UnauthorizedException: If credentials are invalid.
-    """
     user = db.query(User).filter(User.username == data.username).first()
     if user is None or not verify_password(data.password, user.hashed_password):
         raise UnauthorizedException("Invalid username or password")

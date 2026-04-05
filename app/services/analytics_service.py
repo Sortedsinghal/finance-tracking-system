@@ -1,7 +1,3 @@
-"""
-Analytics service — financial summaries, category breakdowns, and trends.
-"""
-
 from collections import defaultdict
 from datetime import date
 from typing import Optional
@@ -23,7 +19,6 @@ from app.schemas.analytics import (
 
 
 def _date_filters(date_from: Optional[date] = None, date_to: Optional[date] = None):
-    """Build optional date range filter conditions."""
     conditions = []
     if date_from:
         conditions.append(Transaction.date >= date_from)
@@ -37,11 +32,6 @@ def get_financial_summary(
     date_from: Optional[date] = None,
     date_to: Optional[date] = None,
 ) -> FinancialSummary:
-    """
-    Calculate high-level financial totals.
-
-    Returns total income, total expenses, current balance, and counts.
-    """
     conditions = _date_filters(date_from, date_to)
 
     query = db.query(
@@ -87,12 +77,6 @@ def get_category_breakdown(
     date_from: Optional[date] = None,
     date_to: Optional[date] = None,
 ) -> CategoryBreakdown:
-    """
-    Break down income and expenses by category.
-
-    Each item includes the category name, total amount, count,
-    and percentage share within its transaction type.
-    """
     conditions = _date_filters(date_from, date_to)
 
     query = db.query(
@@ -107,7 +91,6 @@ def get_category_breakdown(
 
     rows = query.all()
 
-    # Separate income and expense, compute percentages
     income_items: list[CategoryBreakdownItem] = []
     expense_items: list[CategoryBreakdownItem] = []
 
@@ -131,7 +114,6 @@ def get_category_breakdown(
         else:
             expense_items.append(item)
 
-    # Sort by total descending
     income_items.sort(key=lambda x: x.total, reverse=True)
     expense_items.sort(key=lambda x: x.total, reverse=True)
 
@@ -146,12 +128,8 @@ def get_monthly_trends(
     date_from: Optional[date] = None,
     date_to: Optional[date] = None,
 ) -> MonthlyTrend:
-    """
-    Calculate monthly income, expenses, and net for trend visualization.
-    """
     conditions = _date_filters(date_from, date_to)
 
-    # Extract year and month, group by them
     year_col = extract("year", Transaction.date).label("year")
     month_col = extract("month", Transaction.date).label("month")
 
@@ -190,9 +168,6 @@ def get_monthly_trends(
 
 
 def get_recent_activity(db: Session, limit: int = 10) -> RecentActivity:
-    """
-    Get the most recent transactions.
-    """
     transactions = (
         db.query(Transaction)
         .order_by(Transaction.date.desc(), Transaction.id.desc())
@@ -220,10 +195,6 @@ def get_dashboard_data(
     date_from: Optional[date] = None,
     date_to: Optional[date] = None,
 ) -> DashboardData:
-    """
-    Combined dashboard payload — calls all analytics functions
-    and returns a single unified response.
-    """
     return DashboardData(
         summary=get_financial_summary(db, date_from, date_to),
         category_breakdown=get_category_breakdown(db, date_from, date_to),

@@ -1,7 +1,3 @@
-"""
-Analytics routes — financial summaries, breakdowns, and trends.
-"""
-
 from datetime import date
 from typing import Optional
 
@@ -92,7 +88,7 @@ def recent(
     "/dashboard",
     response_model=DashboardData,
     summary="Dashboard data",
-    description="Combined payload with summary, categories, trends, and recent activity. Requires viewer role or above.",
+    description="Combined payload with summary, categories, trends, and recent activity.",
 )
 def dashboard(
     date_from: Optional[date] = Query(None),

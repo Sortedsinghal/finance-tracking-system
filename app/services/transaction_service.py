@@ -1,7 +1,3 @@
-"""
-Transaction service — CRUD, filtering, pagination, and import/export.
-"""
-
 import csv
 import io
 import json
@@ -23,10 +19,7 @@ from app.schemas.transaction import (
 from app.utils.exceptions import NotFoundException, BadRequestException
 
 
-# ── CRUD ─────────────────────────────────────────────────
-
 def create_transaction(db: Session, data: TransactionCreate, user_id: int) -> Transaction:
-    """Create a new financial record."""
     transaction = Transaction(
         user_id=user_id,
         amount=data.amount,
@@ -42,12 +35,6 @@ def create_transaction(db: Session, data: TransactionCreate, user_id: int) -> Tr
 
 
 def get_transaction_by_id(db: Session, transaction_id: int) -> Transaction:
-    """
-    Retrieve a single transaction by ID.
-
-    Raises:
-        NotFoundException: If the record does not exist.
-    """
     transaction = db.query(Transaction).filter(Transaction.id == transaction_id).first()
     if transaction is None:
         raise NotFoundException(f"Transaction with id {transaction_id} not found")
@@ -57,12 +44,6 @@ def get_transaction_by_id(db: Session, transaction_id: int) -> Transaction:
 def update_transaction(
     db: Session, transaction_id: int, data: TransactionUpdate
 ) -> Transaction:
-    """
-    Update an existing transaction.
-
-    Raises:
-        NotFoundException: If the record does not exist.
-    """
     transaction = get_transaction_by_id(db, transaction_id)
 
     update_data = data.model_dump(exclude_unset=True)
@@ -75,21 +56,12 @@ def update_transaction(
 
 
 def delete_transaction(db: Session, transaction_id: int) -> None:
-    """
-    Permanently delete a transaction.
-
-    Raises:
-        NotFoundException: If the record does not exist.
-    """
     transaction = get_transaction_by_id(db, transaction_id)
     db.delete(transaction)
     db.commit()
 
 
-# ── Listing with filters & pagination ────────────────────
-
 def _apply_filters(query, filters: TransactionFilter):
-    """Apply dynamic filters to a transaction query."""
     conditions = []
 
     if filters.type is not None:
@@ -119,18 +91,6 @@ def list_transactions(
     page: int = 1,
     page_size: int = 20,
 ) -> TransactionListResponse:
-    """
-    List transactions with filters and pagination.
-
-    Args:
-        db: Database session.
-        filters: Filter criteria.
-        page: Page number (1-indexed).
-        page_size: Records per page.
-
-    Returns:
-        Paginated transaction list with metadata.
-    """
     query = db.query(Transaction)
     query = _apply_filters(query, filters)
 
@@ -153,10 +113,7 @@ def list_transactions(
     )
 
 
-# ── Export ───────────────────────────────────────────────
-
 def export_transactions_csv(db: Session, filters: TransactionFilter) -> str:
-    """Export filtered transactions to CSV string."""
     query = db.query(Transaction)
     query = _apply_filters(query, filters)
     transactions = query.order_by(Transaction.date.desc()).all()
@@ -172,7 +129,6 @@ def export_transactions_csv(db: Session, filters: TransactionFilter) -> str:
 
 
 def export_transactions_json(db: Session, filters: TransactionFilter) -> list[dict]:
-    """Export filtered transactions to a list of dicts."""
     query = db.query(Transaction)
     query = _apply_filters(query, filters)
     transactions = query.order_by(Transaction.date.desc()).all()
@@ -190,15 +146,7 @@ def export_transactions_json(db: Session, filters: TransactionFilter) -> list[di
     ]
 
 
-# ── Import ───────────────────────────────────────────────
-
 def import_transactions_csv(db: Session, csv_content: str, user_id: int) -> int:
-    """
-    Import transactions from CSV content.
-
-    Returns:
-        Number of records imported.
-    """
     reader = csv.DictReader(io.StringIO(csv_content))
     count = 0
 
@@ -222,12 +170,6 @@ def import_transactions_csv(db: Session, csv_content: str, user_id: int) -> int:
 
 
 def import_transactions_json(db: Session, data: list[dict], user_id: int) -> int:
-    """
-    Import transactions from a list of JSON objects.
-
-    Returns:
-        Number of records imported.
-    """
     count = 0
 
     for item in data:

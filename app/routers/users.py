@@ -1,7 +1,3 @@
-"""
-User management routes — admin-only user CRUD.
-"""
-
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 
@@ -23,11 +19,10 @@ router = APIRouter(prefix="/api/users", tags=["User Management"])
     "",
     response_model=UserListResponse,
     summary="List all users",
-    description="Retrieve all users with pagination. Requires admin role.",
 )
 def list_users(
-    skip: int = Query(0, ge=0, description="Number of records to skip"),
-    limit: int = Query(20, ge=1, le=100, description="Max records to return"),
+    skip: int = Query(0, ge=0),
+    limit: int = Query(20, ge=1, le=100),
     current_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
@@ -39,7 +34,6 @@ def list_users(
     "/{user_id}",
     response_model=UserResponse,
     summary="Get a single user",
-    description="Retrieve a user by ID. Requires admin role.",
 )
 def get_user(
     user_id: int,
@@ -53,7 +47,6 @@ def get_user(
     "/{user_id}",
     response_model=UserResponse,
     summary="Update a user",
-    description="Update a user's profile, role, or status. Requires admin role.",
 )
 def update_user_endpoint(
     user_id: int,
@@ -68,7 +61,6 @@ def update_user_endpoint(
     "/{user_id}",
     response_model=UserResponse,
     summary="Deactivate a user",
-    description="Soft-delete a user by deactivating their account. Requires admin role.",
 )
 def delete_user_endpoint(
     user_id: int,

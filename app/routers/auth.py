@@ -1,7 +1,3 @@
-"""
-Auth routes — registration, login, and current user profile.
-"""
-
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
@@ -22,8 +18,7 @@ router = APIRouter(prefix="/api/auth", tags=["Authentication"])
     description="Create a new user account. The default role is 'viewer'.",
 )
 def register(data: UserCreate, db: Session = Depends(get_db)):
-    user = register_user(db, data)
-    return user
+    return register_user(db, data)
 
 
 @router.post(

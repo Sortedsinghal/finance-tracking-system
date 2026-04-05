@@ -1,5 +1,5 @@
 /**
- * Chart rendering — enterprise palette
+ * Chart rendering palette
  */
 const Charts = {
     monthlyChart: null,

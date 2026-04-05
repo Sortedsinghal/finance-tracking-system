@@ -1,7 +1,3 @@
-"""
-Transaction routes — CRUD, filtering, pagination, import/export.
-"""
-
 from datetime import date
 from typing import Optional
 
@@ -40,7 +36,7 @@ router = APIRouter(prefix="/api/transactions", tags=["Transactions"])
     "",
     response_model=TransactionListResponse,
     summary="List transactions",
-    description="Retrieve transactions with optional filters and pagination. Requires viewer role or above.",
+    description="Retrieve transactions with optional filters and pagination.",
 )
 def list_transactions_endpoint(
     page: int = Query(1, ge=1, description="Page number"),
@@ -70,7 +66,7 @@ def list_transactions_endpoint(
 @router.get(
     "/export",
     summary="Export transactions",
-    description="Export filtered transactions as CSV or JSON. Requires analyst role or above.",
+    description="Export filtered transactions as CSV or JSON.",
 )
 def export_transactions_endpoint(
     format: str = Query("csv", description="Export format: csv or json"),
@@ -106,7 +102,6 @@ def export_transactions_endpoint(
     "/{transaction_id}",
     response_model=TransactionResponse,
     summary="Get a transaction",
-    description="Retrieve a single transaction by ID. Requires viewer role or above.",
 )
 def get_transaction_endpoint(
     transaction_id: int,
@@ -121,7 +116,6 @@ def get_transaction_endpoint(
     response_model=TransactionResponse,
     status_code=201,
     summary="Create a transaction",
-    description="Create a new financial record. Requires admin role.",
 )
 def create_transaction_endpoint(
     data: TransactionCreate,
@@ -135,7 +129,6 @@ def create_transaction_endpoint(
     "/{transaction_id}",
     response_model=TransactionResponse,
     summary="Update a transaction",
-    description="Update an existing transaction. Requires admin role.",
 )
 def update_transaction_endpoint(
     transaction_id: int,
@@ -150,7 +143,6 @@ def update_transaction_endpoint(
     "/{transaction_id}",
     status_code=204,
     summary="Delete a transaction",
-    description="Permanently delete a transaction. Requires admin role.",
 )
 def delete_transaction_endpoint(
     transaction_id: int,
@@ -164,7 +156,7 @@ def delete_transaction_endpoint(
 @router.post(
     "/import",
     summary="Import transactions",
-    description="Import transactions from a CSV or JSON file. Requires admin role.",
+    description="Import transactions from a CSV or JSON file.",
 )
 async def import_transactions_endpoint(
     file: UploadFile = File(..., description="CSV or JSON file to import"),

@@ -1,7 +1,3 @@
-"""
-Transaction (financial record) ORM model.
-"""
-
 import enum
 from datetime import date, datetime, timezone
 
@@ -21,14 +17,11 @@ from app.database import Base
 
 
 class TransactionType(str, enum.Enum):
-    """The two fundamental transaction types."""
     INCOME = "income"
     EXPENSE = "expense"
 
 
 class Transaction(Base):
-    """Represents a single financial record (income or expense)."""
-
     __tablename__ = "transactions"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
@@ -54,7 +47,6 @@ class Transaction(Base):
         nullable=False,
     )
 
-    # Relationship back to user
     user = relationship("User", back_populates="transactions")
 
     def __repr__(self) -> str:

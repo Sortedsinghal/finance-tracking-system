@@ -1,7 +1,3 @@
-"""
-User ORM model.
-"""
-
 import enum
 from datetime import datetime, timezone
 
@@ -12,13 +8,11 @@ from app.database import Base
 
 
 class UserRole(str, enum.Enum):
-    """Available user roles with hierarchical privileges."""
     VIEWER = "viewer"
     ANALYST = "analyst"
     ADMIN = "admin"
 
 
-# Role hierarchy for permission checks
 ROLE_HIERARCHY: dict[UserRole, int] = {
     UserRole.VIEWER: 1,
     UserRole.ANALYST: 2,
@@ -27,8 +21,6 @@ ROLE_HIERARCHY: dict[UserRole, int] = {
 
 
 class User(Base):
-    """Represents a system user with role-based access."""
-
     __tablename__ = "users"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
@@ -56,13 +48,11 @@ class User(Base):
         nullable=False,
     )
 
-    # Relationship to transactions
     transactions = relationship(
         "Transaction", back_populates="user", cascade="all, delete-orphan"
     )
 
     def has_role(self, required_role: UserRole) -> bool:
-        """Check whether this user meets the minimum required role level."""
         return ROLE_HIERARCHY[self.role] >= ROLE_HIERARCHY[required_role]
 
     def __repr__(self) -> str:
